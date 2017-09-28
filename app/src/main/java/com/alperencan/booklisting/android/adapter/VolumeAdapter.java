@@ -27,36 +27,6 @@ public class VolumeAdapter extends RecyclerView.Adapter<VolumeAdapter.VolumeView
 
     private List<Volume> volumes;
 
-    public static class VolumeViewHolder extends RecyclerView.ViewHolder {
-
-        public TextView titleTextView;
-        public TextView authorsTextView;
-        public ImageView coverImageView;
-        public View layout;
-        public AsyncTask<?, ?, ?> task;
-
-
-        public VolumeViewHolder(View itemView) {
-            super(itemView);
-            layout = itemView;
-
-            titleTextView = itemView.findViewById(R.id.title_text);
-            authorsTextView = itemView.findViewById(R.id.authors_text);
-            coverImageView = itemView.findViewById(R.id.cover_image);
-
-        }
-    }
-
-    public void add(int position, Volume item) {
-        volumes.add(position, item);
-        notifyItemInserted(position);
-    }
-
-    public void remove(int position) {
-        volumes.remove(position);
-        notifyItemRemoved(position);
-    }
-
     public VolumeAdapter(List<Volume> volumes) {
         this.volumes = volumes;
     }
@@ -76,7 +46,7 @@ public class VolumeAdapter extends RecyclerView.Adapter<VolumeAdapter.VolumeView
         String authors = "";
         for (String author : volume.getAuthors()) {
             authors += author;
-            if (author != volume.getAuthors()[volume.getAuthors().length - 1]) {
+            if (!author.equals(volume.getAuthors()[volume.getAuthors().length - 1])) {
                 authors += ", ";
             }
         }
@@ -103,6 +73,26 @@ public class VolumeAdapter extends RecyclerView.Adapter<VolumeAdapter.VolumeView
     @Override
     public int getItemCount() {
         return volumes.size();
+    }
+
+    public static class VolumeViewHolder extends RecyclerView.ViewHolder {
+
+        public TextView titleTextView;
+        public TextView authorsTextView;
+        public ImageView coverImageView;
+        public View layout;
+        public AsyncTask<?, ?, ?> task;
+
+
+        public VolumeViewHolder(View itemView) {
+            super(itemView);
+            layout = itemView;
+
+            titleTextView = itemView.findViewById(R.id.title_text);
+            authorsTextView = itemView.findViewById(R.id.authors_text);
+            coverImageView = itemView.findViewById(R.id.cover_image);
+
+        }
     }
 
     private class DownloadImageTask extends AsyncTask<Volume, Void, Volume> {
@@ -141,9 +131,7 @@ public class VolumeAdapter extends RecyclerView.Adapter<VolumeAdapter.VolumeView
 
                 InputStream inputStream = urlConnection.getInputStream();
                 if (inputStream != null) {
-
-                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                    return bitmap;
+                    return BitmapFactory.decodeStream(inputStream);
                 }
             } catch (Exception e) {
                 Log.d("URLCONNECTIONERROR", e.toString());
