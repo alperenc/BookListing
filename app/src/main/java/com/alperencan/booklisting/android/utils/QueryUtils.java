@@ -1,5 +1,6 @@
 package com.alperencan.booklisting.android.utils;
 
+import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -42,9 +43,9 @@ public final class QueryUtils {
     /**
      * Query the Google Books API dataset and return a list of {@link Volume} objects.
      */
-    public static List<Volume> fetchVolumeData(String requestUrl) {
+    public static List<Volume> fetchVolumeData(String requestUrl, String query) {
         // Create URL object
-        URL url = createUrl(requestUrl);
+        URL url = createUrl(requestUrl, query);
 
         // Perform HTTP request to the URL and receive a JSON response back
         String jsonResponse = null;
@@ -61,10 +62,16 @@ public final class QueryUtils {
     /**
      * Returns new URL object from the given string URL.
      */
-    private static URL createUrl(String stringUrl) {
+    private static URL createUrl(String stringUrl, String query) {
+        Uri builtUri = Uri.parse(stringUrl)
+                .buildUpon()
+                .appendQueryParameter("q", query)
+                .appendQueryParameter("maxResults", "20")
+                .build();
+
         URL url = null;
         try {
-            url = new URL(stringUrl);
+            url = new URL(builtUri.toString());
         } catch (MalformedURLException e) {
             Log.e(LOG_TAG, "Problem building the URL ", e);
         }
@@ -172,15 +179,24 @@ public final class QueryUtils {
                 // Extract the value for the key called "title"
                 String title = volumeInfo.getString("title");
 
-                // Extract the value for the key called "authors"
-                JSONArray authorsJSONArray = volumeInfo.getJSONArray("authors");
-                String[] authorsArray = new String[authorsJSONArray.length()];
-                for (int j = 0; j < authorsJSONArray.length(); j++) {
-                    authorsArray[j] = authorsJSONArray.getString(j);
+                // Extract the value for the key called "authors" if there are any.
+                String[] authorsArray;
+                if (volumeInfo.has("authors")) {
+                    JSONArray authorsJSONArray = volumeInfo.getJSONArray("authors");
+                    authorsArray = new String[authorsJSONArray.length()];
+                    for (int j = 0; j < authorsJSONArray.length(); j++) {
+                        authorsArray[j] = authorsJSONArray.getString(j);
+                    }
+                } else {
+                    authorsArray = new String[]{};
                 }
 
-                // Extract the value for the key called "thumbnail"
-                String thumbnail = volumeInfo.getJSONObject("imageLinks").getString("thumbnail");
+                // Extract the value for the key called "thumbnail" if there are any images.
+                String thumbnail = "";
+                if (volumeInfo.has("imageLinks")) {
+                    thumbnail = volumeInfo.getJSONObject("imageLinks").getString("thumbnail");
+                }
+
 
                 // Create a new {@link Volume} object with the title, authors, and thumbnail,
                 // from the JSON response.
