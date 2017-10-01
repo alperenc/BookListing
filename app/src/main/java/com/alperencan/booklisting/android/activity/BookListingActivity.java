@@ -59,8 +59,6 @@ public class BookListingActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(linearLayoutManager);
 
         ArrayList<Volume> volumes = new ArrayList<>();
-//        volumes.add(new Volume("Android in The Attic", new String[]{"Nicholas Allan"}, "http://books.google.com/books/content?id=MoXpe6H2B5gC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"));
-//        volumes.add(new Volume("Voice Application Development for Android", new String[]{"Michael F. McTear", "Zoraida Callejas"}, "http://books.google.com/books/content?id=V-gtAgAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"));
 
         if (volumes.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
@@ -72,10 +70,6 @@ public class BookListingActivity extends AppCompatActivity {
             volumeAdapter = new VolumeAdapter(volumes);
             recyclerView.setAdapter(volumeAdapter);
         }
-
-//        // Start the AsyncTask to fetch the volume data
-//        VolumeAsyncTask task = new VolumeAsyncTask();
-//        task.execute(GOOGLE_BOOKS_API_BASE_URL, "android");
     }
 
     @Override
