@@ -10,6 +10,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
+import android.view.View;
+import android.widget.TextView;
 
 import com.alperencan.booklisting.android.R;
 import com.alperencan.booklisting.android.adapter.VolumeAdapter;
@@ -32,6 +34,11 @@ public class BookListingActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
 
     /**
+     * TextView for empty state.
+     */
+    private TextView emptyView;
+
+    /**
      * Adapter for the list of volumes
      */
     private VolumeAdapter volumeAdapter;
@@ -45,19 +52,30 @@ public class BookListingActivity extends AppCompatActivity {
         // Find a reference to the {@link RecyclerView} in the layout
         recyclerView = (RecyclerView) findViewById(R.id.list);
 
+        // Find a reference to the {@link TextView} in the layout
+        emptyView = (TextView) findViewById(R.id.empty_view);
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
 
         ArrayList<Volume> volumes = new ArrayList<>();
-        volumes.add(new Volume("Android in The Attic", new String[]{"Nicholas Allan"}, "http://books.google.com/books/content?id=MoXpe6H2B5gC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"));
-        volumes.add(new Volume("Voice Application Development for Android", new String[]{"Michael F. McTear", "Zoraida Callejas"}, "http://books.google.com/books/content?id=V-gtAgAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"));
+//        volumes.add(new Volume("Android in The Attic", new String[]{"Nicholas Allan"}, "http://books.google.com/books/content?id=MoXpe6H2B5gC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"));
+//        volumes.add(new Volume("Voice Application Development for Android", new String[]{"Michael F. McTear", "Zoraida Callejas"}, "http://books.google.com/books/content?id=V-gtAgAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"));
 
-        volumeAdapter = new VolumeAdapter(volumes);
-        recyclerView.setAdapter(volumeAdapter);
+        if (volumes.isEmpty()) {
+            recyclerView.setVisibility(View.GONE);
+            emptyView.setVisibility(View.VISIBLE);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            emptyView.setVisibility(View.GONE);
 
-        // Start the AsyncTask to fetch the volume data
-        VolumeAsyncTask task = new VolumeAsyncTask();
-        task.execute(GOOGLE_BOOKS_API_BASE_URL, "android");
+            volumeAdapter = new VolumeAdapter(volumes);
+            recyclerView.setAdapter(volumeAdapter);
+        }
+
+//        // Start the AsyncTask to fetch the volume data
+//        VolumeAsyncTask task = new VolumeAsyncTask();
+//        task.execute(GOOGLE_BOOKS_API_BASE_URL, "android");
     }
 
     @Override
@@ -119,8 +137,14 @@ public class BookListingActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(List<Volume> volumes) {
             if (volumes != null && !volumes.isEmpty()) {
+                recyclerView.setVisibility(View.VISIBLE);
+                emptyView.setVisibility(View.GONE);
+
                 volumeAdapter = new VolumeAdapter(volumes);
                 recyclerView.setAdapter(volumeAdapter);
+            } else {
+                recyclerView.setVisibility(View.GONE);
+                emptyView.setVisibility(View.VISIBLE);
             }
         }
     }
