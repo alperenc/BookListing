@@ -3,6 +3,8 @@ package com.alperencan.booklisting.android.activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -98,10 +100,22 @@ public class BookListingActivity extends AppCompatActivity {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
 
-            // Start the AsyncTask to fetch the volume data for search term
-            VolumeAsyncTask task = new VolumeAsyncTask();
-            task.execute(GOOGLE_BOOKS_API_BASE_URL, query);
+            // Get a reference to the ConnectivityManager to check state of network connectivity
+            ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
+            // Get details on the currently active default data network
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+
+            if (networkInfo != null && networkInfo.isConnected()) {
+                // Start the AsyncTask to fetch the volume data for search term
+                VolumeAsyncTask task = new VolumeAsyncTask();
+                task.execute(GOOGLE_BOOKS_API_BASE_URL, query);
+            } else {
+                emptyView.setText(R.string.no_internet_connection);
+
+                recyclerView.setVisibility(View.GONE);
+                emptyView.setVisibility(View.VISIBLE);
+            }
         }
     }
 
